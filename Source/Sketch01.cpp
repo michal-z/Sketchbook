@@ -8,6 +8,9 @@
 #pragma comment(lib, "d2d1.lib")
 
 
+#ifdef _DEBUG
+#define ENABLE_DEBUG_LAYER
+#endif
 #define VHR(r) if (FAILED((r))) assert(0);
 #define CRELEASE(c) if ((c)) { (c)->Release(); (c) = nullptr; }
 #define k_Name "Sketch01"
@@ -158,13 +161,13 @@ static HWND MakeWindow()
 		nullptr, nullptr, nullptr, 0);
 	assert(hwnd);
 
-#ifdef _DEBUG
-	D2D1_FACTORY_OPTIONS options;
-	options.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
-	VHR(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, options, &s_Factory));
+	D2D1_FACTORY_OPTIONS factoryOptions;
+#ifdef ENABLE_DEBUG_LAYER
+	factoryOptions.debugLevel = D2D1_DEBUG_LEVEL_INFORMATION;
 #else
-	VHR(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &s_Factory));
+	factoryOptions.debugLevel = D2D1_DEBUG_LEVEL_NONE;
 #endif
+	VHR(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(s_Factory), &factoryOptions, (void **)&s_Factory));
 
 	D2D1_SIZE_U size = D2D1::SizeU(k_ResolutionX, k_ResolutionY);
 
