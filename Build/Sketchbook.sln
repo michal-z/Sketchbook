@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sketch01", "Sketch01.vcxproj", "{35CB1ABC-4FDE-4F4E-B423-B2286C11041B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sketch02", "Sketch02.vcxproj", "{35C12E78-7F9A-4BE2-9736-C9CEBF6AF386}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{35CB1ABC-4FDE-4F4E-B423-B2286C11041B}.Debug|x64.Build.0 = Debug|x64
 		{35CB1ABC-4FDE-4F4E-B423-B2286C11041B}.Release|x64.ActiveCfg = Release|x64
 		{35CB1ABC-4FDE-4F4E-B423-B2286C11041B}.Release|x64.Build.0 = Release|x64
+		{35C12E78-7F9A-4BE2-9736-C9CEBF6AF386}.Debug|x64.ActiveCfg = Debug|x64
+		{35C12E78-7F9A-4BE2-9736-C9CEBF6AF386}.Debug|x64.Build.0 = Debug|x64
+		{35C12E78-7F9A-4BE2-9736-C9CEBF6AF386}.Release|x64.ActiveCfg = Release|x64
+		{35C12E78-7F9A-4BE2-9736-C9CEBF6AF386}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

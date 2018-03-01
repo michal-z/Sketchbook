@@ -26,23 +26,23 @@ struct Sphere
 
 static double s_Time;
 static float s_DeltaTime;
-static ID2D1Factory7 *s_Factory;
+static ID2D1Factory6 *s_Factory;
 static ID2D1HwndRenderTarget *s_RenderTarget;
 static ID2D1SolidColorBrush *s_FillBrush;
 static ID2D1SolidColorBrush *s_StrokeBrush;
 static Sphere *s_Spheres;
 
 // returns [0.0f, 1.0f)
-inline float Randomf()
+static inline float Randomf()
 {
 	const uint32_t exponent = 127;
 	const uint32_t significand = (uint32_t)(rand() & 0x7fff); // get 15 random bits
 	const uint32_t result = (exponent << 23) | (significand << 8);
-	return *(float*)&result - 1.0f;
+	return *(float *)&result - 1.0f;
 }
 
 // returns [begin, end)
-inline float Randomf(float begin, float end)
+static inline float Randomf(float begin, float end)
 {
 	assert(begin < end);
 	return begin + (end - begin) * Randomf();
