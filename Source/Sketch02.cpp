@@ -10,6 +10,7 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "d3d11.lib")
+using namespace D2D1;
 
 
 #ifdef _DEBUG
@@ -17,10 +18,6 @@
 #endif
 #define VHR(r) if (FAILED((r))) assert(0);
 #define CRELEASE(c) if ((c)) { (c)->Release(); (c) = nullptr; }
-#define k_Name "Sketch02"
-#define k_ResolutionX 800
-#define k_ResolutionY 800
-#define k_SphereCount 500
 
 struct Sphere
 {
@@ -28,6 +25,12 @@ struct Sphere
 	D2D1_COLOR_F color;
 };
 
+static const char *k_Name = "Sketch02";
+static const unsigned k_ResolutionX = 800;
+static const unsigned k_ResolutionY = 800;
+static const unsigned k_SphereCount = 500;
+static const unsigned k_ScreenX = GetSystemMetrics(SM_CXSCREEN);
+static const unsigned k_ScreenY = GetSystemMetrics(SM_CYSCREEN);
 static double s_Time;
 static float s_DeltaTime;
 static ID2D1Device6 *s_D2dDevice;
@@ -57,25 +60,31 @@ static inline float Randomf(float begin, float end)
 
 static void Setup()
 {
-	VHR(s_D2dContext->CreateSolidColorBrush(D2D1::ColorF(0), &s_FillBrush));
-	VHR(s_D2dContext->CreateSolidColorBrush(D2D1::ColorF(0, 0.125f), &s_StrokeBrush));
+	VHR(s_D2dContext->CreateSolidColorBrush(ColorF(0), &s_FillBrush));
+	VHR(s_D2dContext->CreateSolidColorBrush(ColorF(0, 0.125f), &s_StrokeBrush));
 
 	s_Spheres = new Sphere[k_SphereCount];
 	for (uint32_t i = 0; i < k_SphereCount; ++i)
 	{
-		float x = Randomf(0.0f, k_ResolutionX);
-		float y = Randomf(0.0f, k_ResolutionY);
+		float x = Randomf((float)(k_ScreenX / 2 - k_ResolutionX / 2), (float)(k_ScreenX / 2 + k_ResolutionX / 2));
+		float y = Randomf((float)(k_ScreenY / 2 - k_ResolutionY / 2), (float)(k_ScreenY / 2 + k_ResolutionY / 2));
 		float r = Randomf(20.0f, 120.0f);
 
-		s_Spheres[i].shape = D2D1::Ellipse(D2D1::Point2F(x, y), r, r);
-		s_Spheres[i].color = D2D1::ColorF(Randomf(), Randomf(), Randomf(), 0.2f);
+		s_Spheres[i].shape = Ellipse(Point2F(x, y), r, r);
+		s_Spheres[i].color = ColorF(Randomf(), Randomf(), Randomf(), 0.2f);
 	}
 }
 
 static void Draw()
 {
 	s_D2dContext->BeginDraw();
-	s_D2dContext->Clear(D2D1::ColorF(D2D1::ColorF::White));
+	s_D2dContext->Clear(ColorF(ColorF::White));
+
+	s_D2dContext->PushAxisAlignedClip(RectF(
+		(float)(k_ScreenX / 2 - k_ResolutionX / 2),
+		(float)(k_ScreenY / 2 - k_ResolutionY / 2),
+		(float)(k_ScreenX / 2 + k_ResolutionX / 2),
+		(float)(k_ScreenY / 2 + k_ResolutionY / 2)), D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 
 	for (int i = 0; i < k_SphereCount; ++i)
 	{
@@ -83,6 +92,9 @@ static void Draw()
 		s_D2dContext->FillEllipse(s_Spheres[i].shape, s_FillBrush);
 		s_D2dContext->DrawEllipse(s_Spheres[i].shape, s_StrokeBrush, 3.0f);
 	}
+
+	s_D2dContext->PopAxisAlignedClip();
+
 	VHR(s_D2dContext->EndDraw());
 	VHR(s_SwapChain->Present(0, 0));
 }
@@ -158,14 +170,9 @@ static HWND MakeWindow()
 	if (!RegisterClass(&winclass))
 		assert(0);
 
-	RECT rect = { 0, 0, k_ResolutionX, k_ResolutionY };
-	if (!AdjustWindowRect(&rect, WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX, 0))
-		assert(0);
-
 	HWND hwnd = CreateWindowEx(
-		0, k_Name, k_Name, WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX | WS_VISIBLE,
-		CW_USEDEFAULT, CW_USEDEFAULT,
-		rect.right - rect.left, rect.bottom - rect.top,
+		0, k_Name, k_Name, WS_POPUP | WS_VISIBLE,
+		CW_USEDEFAULT, CW_USEDEFAULT, k_ScreenX, k_ScreenY,
 		nullptr, nullptr, nullptr, 0);
 	assert(hwnd);
 
@@ -176,8 +183,6 @@ static HWND MakeWindow()
 	factoryOptions.debugLevel = D2D1_DEBUG_LEVEL_NONE;
 #endif
 	VHR(D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(s_D2dFactory), &factoryOptions, (void **)&s_D2dFactory));
-
-	D2D1_SIZE_U size = D2D1::SizeU(k_ResolutionX, k_ResolutionY);
 
 	ID3D11Device *d3d11Device;
 	ID3D11DeviceContext *d3d11Context;
@@ -207,9 +212,9 @@ static HWND MakeWindow()
 	VHR(dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory)));
 	VHR(dxgiFactory->CreateSwapChainForHwnd(d3d11Device, hwnd, &swapChainDesc, nullptr, nullptr, &s_SwapChain));
 
-	D2D1_BITMAP_PROPERTIES1 bitmapProperties = D2D1::BitmapProperties1(
+	D2D1_BITMAP_PROPERTIES1 bitmapProperties = BitmapProperties1(
 		D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
-		D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE), 96.0f, 96.0f);
+		PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE), 96.0f, 96.0f);
 
 	IDXGISurface *dxgiBackBuffer;
 	VHR(s_SwapChain->GetBuffer(0, IID_PPV_ARGS(&dxgiBackBuffer)));
@@ -229,9 +234,8 @@ static HWND MakeWindow()
 
 int CALLBACK WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
-	SetProcessDPIAware();
-
 	HWND hwnd = MakeWindow();
+	ShowCursor(FALSE);
 	Setup();
 
 	for (;;)
