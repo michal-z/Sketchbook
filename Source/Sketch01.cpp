@@ -13,7 +13,7 @@
 using namespace D2D1;
 
 
-#define PRESENTATION_MODE
+//#define PRESENTATION_MODE
 #ifdef _DEBUG
 #define ENABLE_DEBUG_LAYER
 #endif
@@ -26,7 +26,7 @@ struct Sphere
 	D2D1_COLOR_F color;
 };
 
-static const char *k_Name = "Sketch02";
+static const char *k_Name = "Sketch01";
 static const unsigned k_ResolutionX = 800;
 static const unsigned k_ResolutionY = 800;
 static const unsigned k_SphereCount = 500;
